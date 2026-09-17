@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>StockRx — Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="app-nav">
+  <div class="brand">💊 StockRx</div>
+  <div id="userBox"></div>
+</div>
+
+<div id="authView" class="auth-box" style="display:none">
+  <div class="tabs">
+    <div class="tab active" data-auth="login">Login</div>
+    <div class="tab" data-auth="register">Register</div>
+  </div>
+  <div id="authMsg"></div>
+  <form id="loginForm">
+    <input type="email" id="loginEmail" placeholder="Email" required />
+    <input type="password" id="loginPassword" placeholder="Password" required />
+    <button style="width:100%">Login</button>
+  </form>
+  <form id="registerForm" style="display:none">
+    <input id="regName" placeholder="Full name" required />
+    <input type="email" id="regEmail" placeholder="Email" required />
+    <input type="password" id="regPassword" placeholder="Password" required />
+    <button style="width:100%">Create account</button>
+  </form>
+</div>
+
+<div id="mainView" class="app-wrap" style="display:none">
+  <div class="tabs">
+    <div class="tab active" data-panel="medicines">Medicines</div>
+    <div class="tab" data-panel="batches">Batches</div>
+    <div class="tab" data-panel="dispense">Dispense</div>
+    <div class="tab" data-panel="import">Bulk Import</div>
+    <div class="tab" data-panel="clock">Simulated Clock</div>
+    <div class="tab" data-panel="outbox">Outbox (Notifications)</div>
+    <div class="tab" data-panel="search">Search</div>
+  </div>
+
+  <div id="globalMsg"></div>
+
+  <!-- Medicines -->
+  <div class="panel active" id="panel-medicines">
+    <div class="card2">
+      <h3>Add medicine</h3>
+      <div class="row">
+        <input id="medName" placeholder="Medicine name" />
+        <input id="medReorder" type="number" placeholder="Reorder level" value="10" style="width:140px" />
+        <button onclick="addMedicine()">Add</button>
+      </div>
+    </div>
+    <div class="row">
+      <input id="medSearch" placeholder="Search medicines..." oninput="loadMedicines(1)" />
+    </div>
+    <table>
+      <thead><tr>
+        <th onclick="sortMed('name')">Name</th>
+        <th onclick="sortMed('reorder_level')">Reorder level</th>
+        <th>In-date stock</th>
+        <th>In date?</th>
+      </tr></thead>
+      <tbody id="medTable"></tbody>
+    </table>
+    <div class="pager" id="medPager"></div>
+  </div>
+
+  <!-- Batches -->
+  <div class="panel" id="panel-batches">
+    <div class="card2">
+      <h3>Add batch</h3>
+      <div class="row">
+        <select id="batchMedId"></select>
+        <input id="batchNo" placeholder="Batch no." />
+        <input id="batchQty" type="number" placeholder="Quantity" style="width:100px" />
+        <input id="batchExpiry" type="date" />
+        <button onclick="addBatch()">Add batch</button>
+      </div>
+    </div>
+    <div class="row">
+      <select id="batchFilterMed"><option value="">All medicines</option></select>
+      <select id="batchFilterStatus">
+        <option value="">All statuses</option>
+        <option value="active">Active</option>
+        <option value="quarantined">Quarantined</option>
+      </select>
+      <button class="secondary" onclick="loadBatches(1)">Filter</button>
+    </div>
+    <table>
+      <thead><tr>
+        <th onclick="sortBatch('batch_no')">Batch no.</th>
+        <th>Medicine</th>
+        <th onclick="sortBatch('quantity')">Qty</th>
+        <th onclick="sortBatch('expiry_date')">Expiry</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody id="batchTable"></tbody>
+    </table>
+    <div class="pager" id="batchPager"></div>
+  </div>
+
+  <!-- Dispense -->
+  <div class="panel" id="panel-dispense">
+    <div class="card2">
+      <h3>Dispense (First-Expiry-First-Out)</h3>
+      <div class="row">
+        <select id="dispenseMedId"></select>
+        <input id="dispenseQty" type="number" placeholder="Quantity" style="width:120px" />
+        <button onclick="doDispense()">Dispense</button>
+      </div>
+      <div id="dispenseResult"></div>
+    </div>
+  </div>
+
+  <!-- Import -->
+  <div class="panel" id="panel-import">
+    <div class="card2">
+      <h3>Bulk import (messy data tolerated)</h3>
+      <p class="small">Paste a JSON array of rows. Fields: medicine_name, batch_no, quantity (accepts "10 units"), expiry_date (accepts dd/mm/yyyy or ISO). Nulls / duplicates / garbage handled automatically.</p>
+      <textarea id="importData" rows="8" style="width:100%" placeholder='[{"medicine_name":"Paracetamol","batch_no":"B1","quantity":"10 units","expiry_date":"12/05/2026"}, {"medicine_name":"Paracetamol","batch_no":"B1","quantity":"10 units","expiry_date":"12/05/2026"}, {"medicine_name":null,"batch_no":"B2","quantity":"abc","expiry_date":"2026-01-01"}]'></textarea>
+      <div class="row"><button onclick="doImport()">Import</button></div>
+      <div id="importResult"></div>
+    </div>
+  </div>
+
+  <!-- Clock -->
+  <div class="panel" id="panel-clock">
+    <div class="card2">
+      <h3>Simulated clock (drives the daily expiry job)</h3>
+      <p class="small">Advancing the clock runs the daily job: quarantines expired batches, flags batches expiring within 7 days, and refreshes re-order alerts.</p>
+      <div class="row">
+        <input id="clockDate" type="date" />
+        <button onclick="setClock()">Advance clock & run daily job</button>
+      </div>
+      <div id="clockResult"></div>
+    </div>
+  </div>
+
+  <!-- Outbox -->
+  <div class="panel" id="panel-outbox">
+    <div class="card2">
+      <h3>Outbox — simulated Notification Service</h3>
+      <button class="secondary" onclick="loadOutbox()">Refresh</button>
+      <table style="margin-top:10px">
+        <thead><tr><th>Medicine</th><th>Message</th><th>Stock</th><th>Reorder level</th><th>Sent at</th></tr></thead>
+        <tbody id="outboxTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="panel" id="panel-search">
+    <div class="card2">
+      <div class="row">
+        <input id="searchQ" placeholder="Search medicines or batch numbers..." oninput="doSearch()" />
+      </div>
+      <h4>Medicines</h4>
+      <table><tbody id="searchMed"></tbody></table>
+      <h4>Batches</h4>
+      <table><tbody id="searchBatch"></tbody></table>
+    </div>
+  </div>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

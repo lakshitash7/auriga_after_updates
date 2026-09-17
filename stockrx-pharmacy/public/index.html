@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>StockRx — Pharmacy Batch & Expiry Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<header class="hero">
+  <nav class="nav">
+    <div class="brand">💊 StockRx</div>
+    <a class="btn ghost" href="/app.html">Open App</a>
+  </nav>
+  <div class="hero-content">
+    <h1>Never dispense an expired batch again.</h1>
+    <p>StockRx is a batch-level inventory manager built for neighbourhood pharmacies. It tracks every batch's expiry, dispenses oldest-stock-first automatically, and warns you before anything goes out of date.</p>
+    <a class="btn primary" href="/app.html">Get Started →</a>
+  </div>
+</header>
+
+<section class="section">
+  <h2>What it is</h2>
+  <p>A full-stack pharmacy stock manager: register medicines, log batches with expiry dates, and dispense against real demand. StockRx always pulls from the batch expiring soonest (FEFO — first-expiry-first-out) and refuses to dispense anything already expired.</p>
+</section>
+
+<section class="section">
+  <h2>Key features</h2>
+  <div class="grid">
+    <div class="card"><h3>FEFO Dispensing</h3><p>Automatically consumes the soonest-expiring in-date batch first, across as many batches as needed.</p></div>
+    <div class="card"><h3>In-date Stock Lookup</h3><p>Instantly see sellable stock per medicine, ignoring anything expired or quarantined.</p></div>
+    <div class="card"><h3>Daily Expiry Job</h3><p>Simulated-clock driven job flags batches expiring within 7 days and quarantines expired stock automatically.</p></div>
+    <div class="card"><h3>Messy Data Import</h3><p>Bulk-import batch lists with inconsistent formats — nulls, "10 units", mixed date formats, duplicate rows — and get a clean import report.</p></div>
+    <div class="card"><h3>Re-order Alerts</h3><p>When in-date stock for a medicine drops to or below its reorder level, a notification is logged to the outbox automatically.</p></div>
+    <div class="card"><h3>Search, Sort & Pagination</h3><p>Find medicines and batches fast, sorted by expiry, quantity, or name.</p></div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Who it's for</h2>
+  <p>Independent pharmacies and small pharmacy chains that currently track batches on paper or spreadsheets, and need a lightweight system to reduce wastage and stockouts without enterprise software overhead.</p>
+</section>
+
+<section class="section">
+  <h2>How it helps</h2>
+  <ul>
+    <li>Cuts financial loss from expired, unsold stock via proactive quarantine + flagging.</li>
+    <li>Reduces manual FEFO tracking errors at the counter.</li>
+    <li>Prevents stockouts with automatic re-order notifications.</li>
+    <li>Turns messy paper/Excel batch records into clean, queryable data.</li>
+  </ul>
+</section>
+
+<section class="section">
+  <h2>What we'd build next</h2>
+  <ol>
+    <li><strong>Supplier & purchase-order workflow</strong> — turn outbox re-order alerts into one-click purchase orders sent to suppliers.</li>
+    <li><strong>Multi-branch support</strong> — stock visibility and transfer between multiple pharmacy locations.</li>
+    <li><strong>Barcode/QR batch scanning</strong> — faster batch intake and point-of-sale dispensing via a mobile scanner.</li>
+  </ol>
+</section>
+
+<footer class="footer">Built for the Round 2 Builder assessment.</footer>
+</body>
+</html>
